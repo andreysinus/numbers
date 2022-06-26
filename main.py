@@ -1,4 +1,4 @@
-from curses import reset_shell_mode
+
 import os
 
 import httplib2
