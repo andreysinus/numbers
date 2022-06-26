@@ -20,6 +20,6 @@ gSheet_id= "1SpznG225ttDbGRtLA3abzAusSkx0peQZTtHTaMgFudE"
 service = get_service_sacc()
 sheet = service.spreadsheets()
 
-res = sheet.values().get(spreadsheetId=gSheet_id, range="Лист1!A1:A999").execute()
+res = sheet.values().get(spreadsheetId=gSheet_id, range="Лист1!A1:D999").execute()
 
 print(res)
