@@ -1,11 +1,10 @@
-
 import os
 
 import httplib2
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 
-def get_service():
+def get_service_sacc():
 
     creds_json = os.path.dirname(__file__) + "/service.json"
     scopes = ['https://www.googleapis.com/auth/spreadsheets']
@@ -16,7 +15,9 @@ def get_service():
 
 #ID таблицы
 gSheet_id= "1SpznG225ttDbGRtLA3abzAusSkx0peQZTtHTaMgFudE"
-service = get_service()
+
+#service = get_service_simple()
+service = get_service_sacc()
 sheet = service.spreadsheets()
 
 res = sheet.values().batchGet(spreadsheetId=gSheet_id, ranges=["Лист1"]).execute()
