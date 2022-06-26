@@ -20,6 +20,6 @@ gSheet_id= "1SpznG225ttDbGRtLA3abzAusSkx0peQZTtHTaMgFudE"
 service = get_service_sacc()
 sheet = service.spreadsheets()
 
-res = sheet.values().batchGet(spreadsheetId=gSheet_id, ranges=["Лист1"]).execute()
+res = sheet.values().get(spreadsheetId=gSheet_id, range="Лист1!A1:A999").execute()
 
 print(res)
