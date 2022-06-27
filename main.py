@@ -1,25 +1,32 @@
 import os
-
-import httplib2
-from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
-
-def get_service_sacc():
-
-    creds_json = os.path.dirname(__file__) + "/service.json"
-    scopes = ['https://www.googleapis.com/auth/spreadsheets']
-
-    creds_service = ServiceAccountCredentials.from_json_keyfile_name(creds_json, scopes).authorize(httplib2.Http())
-    return build('sheets', 'v4', http=creds_service)
+import psycopg2
 
 
-#ID таблицы
-gSheet_id= "1SpznG225ttDbGRtLA3abzAusSkx0peQZTtHTaMgFudE"
+from bdConfig import host,user, password,db_name, gSheet_id
+from serviceFunc import get_service_sacc, createTable
 
-#service = get_service_simple()
-service = get_service_sacc()
-sheet = service.spreadsheets()
+def main():
+    #try: 
+        service = get_service_sacc()
+        sheet = service.spreadsheets()
+        res = sheet.values().get(spreadsheetId=gSheet_id, range="Лист1!A1:D999").execute()
+        print(res)
 
-res = sheet.values().get(spreadsheetId=gSheet_id, range="Лист1!A1:D999").execute()
+        connection=psycopg2.connect(
+                user=user,
+                host=host,
+                password=password,
+                database=db_name
+            )
+        createTable(connection)
+       
+    #except:
+        #print("Error while connection with PostgreSQL")
+    #finally:
+        #if connection:
+            #connection.close()
+            #print("PostgreSQL connection closed")
 
-print(res)
+
+if __name__ == '__main__':
+   main()
