@@ -1,14 +1,15 @@
 import os
 import threading
+import time
 from xml.dom import minidom
 import httplib2
 import urllib.request
-from pprint import pprint
+
 
 from bdConfig import gSheet_id
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
-import urllib3
+from bdConfig import delayUpdate
 
 
 table_name="TestTable"
@@ -39,8 +40,12 @@ def createTable(connection):
             print("Table created")
 
 def clearTable(connection):
-    
-
+    with connection.cursor() as cursor:
+            cursor.execute(f"""
+                DELETE FROM {table_name};
+            """)
+            connection.commit()
+            print("Table cleared")
 def get_data(CBRFurl):
     web_file=urllib.request.urlopen(CBRFurl)
     return web_file.read()
@@ -69,6 +74,31 @@ def get_dollar():
     #print(usdCurrency)
     return usdCurrency
 
-def getSheet(sheet):
-    res = sheet.values().get(spreadsheetId=gSheet_id, range="Лист1!A1:D999").execute()
-    threading.Timer(5.0, getSheet).start()
+def updateTable(res, connection):
+    #Получение курса доллара
+    usdCurrency = get_dollar()
+    val = res.get('values', [])
+    for rows in val:
+        print(rows[0])
+        rubVal = float(rows[2])*usdCurrency
+        with connection.cursor() as cursor:
+            cursor.execute(f"""
+            INSERT INTO {table_name.lower()} (id) ("{rows[0]}", "{rows[1]}", "{rows[2]}" ,"{rubVal}", "{rows[3]}") 
+            """)
+        connection.commit()
+
+def getSheet(sheet, connection):
+    #Получение таблицы из Google Sheets
+    res = sheet.values().get(spreadsheetId=gSheet_id, range="Лист1!A2:D999").execute()
+
+    #Очистка таблицы
+    clearTable(connection)
+
+    #Заполнение таблицы
+    updateTable(res, connection)
+
+    #Задержка между выполнением
+    time.sleep(delayUpdate)
+
+    #Повторный запуск функции
+    threading.Timer(60.0, getSheet(sheet, connection)).start()

@@ -1,33 +1,34 @@
 import psycopg2
 import time
 
-from bdConfig import host,user, password,db_name, gSheet_id
-from serviceFunc import get_dollar, get_service_sacc, createTable
-usdCurrency=0
+from bdConfig import host,user, password,db_name
+from serviceFunc import get_service_sacc, createTable, getSheet
+
 x=True
 def main():
-    try: 
+    #try:
+        #Подключение к таблице
         service = get_service_sacc()
         sheet = service.spreadsheets()
         
-
+        #Подключение к БД
         connection=psycopg2.connect(
                 user=user,
                 host=host,
                 password=password,
                 database=db_name
             )
+        #Создание таблицы, при её отсутсвии
         createTable(connection)
-        while x==True:
+        #Внесение изменений в БД
+        getSheet(sheet, connection)
             
-            time.sleep(60)
-            
-    except:
-        print("Error while connection with PostgreSQL")
-    finally:
-        if connection:
-            connection.close()
-            print("PostgreSQL connection closed")
-
+    #except:
+        #print("Error while connection with PostgreSQL")
+    #finally:
+       # if connection:
+            #connection.close()
+            #print("PostgreSQL connection closed")
+    
 if __name__ == '__main__':
    main()
