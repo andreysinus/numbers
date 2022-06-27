@@ -1,11 +1,11 @@
 import os
 import threading
 import time
-from xml.dom import minidom
 import httplib2
 import urllib.request
 
-
+from xml.dom import minidom
+from datetime import date, datetime
 from bdConfig import gSheet_id
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
@@ -30,6 +30,7 @@ def createTable(connection):
                 f"""CREATE TABLE IF NOT EXISTS {table_name}
                 (
                     id serial,
+                    "Order" int,
                     "priceDollar" numeric,
                     "priceRub" numeric,
                     "deliveryDate" date
@@ -71,7 +72,6 @@ def get_dollar():
             if CHcode=="USD":
                 usdCurrency=usdValue
             
-    #print(usdCurrency)
     return usdCurrency
 
 def updateTable(res, connection):
@@ -79,13 +79,22 @@ def updateTable(res, connection):
     usdCurrency = get_dollar()
     val = res.get('values', [])
     for rows in val:
-        print(rows[0])
-        rubVal = float(rows[2])*usdCurrency
-        with connection.cursor() as cursor:
-            cursor.execute(f"""
-            INSERT INTO {table_name.lower()} (id) ("{rows[0]}", "{rows[1]}", "{rows[2]}" ,"{rubVal}", "{rows[3]}") 
-            """)
-        connection.commit()
+        if rows!=[]:
+            rubVal = float(rows[2])*usdCurrency
+            rubVal=round(rubVal,2)
+            checkDeliveryDate(rows[3])
+            with connection.cursor() as cursor:
+                cursor.execute(f"""
+                INSERT INTO {table_name.lower()} VALUES ({rows[0]}, {rows[1]}, {rows[2]} ,{rubVal}, '{rows[3]}') 
+                """)
+            connection.commit()
+
+def checkDeliveryDate(delDate):
+    newDate=datetime.strptime(delDate,'%d.%m.%Y')
+    nowDate=datetime.strptime(str(date.today()),'%Y-%m-%d')
+    if newDate<nowDate:
+        print("Срок поставки прошел: " + delDate)
+
 
 def getSheet(sheet, connection):
     #Получение таблицы из Google Sheets
