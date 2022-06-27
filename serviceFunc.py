@@ -3,7 +3,7 @@ import threading
 import time
 import httplib2
 import urllib.request
-import keyboard
+
 
 from xml.dom import minidom
 from datetime import date, datetime
@@ -83,18 +83,19 @@ def updateTable(res, connection):
         if rows!=[]:
             rubVal = float(rows[2])*usdCurrency
             rubVal=round(rubVal,2)
-            checkDeliveryDate(rows[3])
+            checkDeliveryDate(rows[3],rows[0],rows[1])
             with connection.cursor() as cursor:
                 cursor.execute(f"""
                 INSERT INTO {table_name.lower()} VALUES ({rows[0]}, {rows[1]}, {rows[2]} ,{rubVal}, '{rows[3]}') 
                 """)
             connection.commit()
 
-def checkDeliveryDate(delDate):
+def checkDeliveryDate(delDate, idOfDelivery, numOfDelivery):
     newDate=datetime.strptime(delDate,'%d.%m.%Y')
     nowDate=datetime.strptime(str(date.today()),'%Y-%m-%d')
     if newDate<nowDate:
-        print("Срок поставки прошел у заказа: " +". Указанная дата поставки:"+ delDate)
+        print("Срок поставки прошел у заказа с номером " + numOfDelivery+" (ID: "+idOfDelivery+"). Указанная дата поставки:"+ delDate)
+        return
 
 
 def getSheet(sheet, connection):

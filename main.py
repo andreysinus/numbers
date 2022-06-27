@@ -3,7 +3,7 @@ import time
 
 from bdConfig import host,user, password,db_name
 from serviceFunc import get_service_sacc, createTable, getSheet
-
+connection=""
 x=True
 def main():
     try:
