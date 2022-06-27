@@ -11,7 +11,7 @@ def main():
         sheet = service.spreadsheets()
         res = sheet.values().get(spreadsheetId=gSheet_id, range="Лист1!A1:D999").execute()
         print(res)
-
+        
         connection=psycopg2.connect(
                 user=user,
                 host=host,

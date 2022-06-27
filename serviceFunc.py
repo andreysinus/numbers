@@ -18,7 +18,7 @@ def get_service_sacc():
 def createTable(connection):
      with connection.cursor() as cursor:
             cursor.execute(
-                """CREATE TABLE IF NOT EXISTS TestTable
+                f"""CREATE TABLE IF NOT EXISTS {table_name}
                 (
                     id serial,
                     "priceDollar" numeric,
@@ -27,4 +27,5 @@ def createTable(connection):
                 );
                 """
             )
-            #print(f"Table: {cursor.fetchone()}")
+            connection.commit()
+            print("Table created")
