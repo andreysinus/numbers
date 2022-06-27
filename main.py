@@ -6,7 +6,7 @@ from serviceFunc import get_service_sacc, createTable, getSheet
 
 x=True
 def main():
-    #try:
+    try:
         #Подключение к таблице
         service = get_service_sacc()
         sheet = service.spreadsheets()
@@ -23,12 +23,12 @@ def main():
         #Внесение изменений в БД
         getSheet(sheet, connection)
             
-    #except:
-        #print("Error while connection with PostgreSQL")
-    #finally:
-       # if connection:
-            #connection.close()
-            #print("PostgreSQL connection closed")
+    except:
+        print("Error when working with the table")
+    finally:
+        if connection:
+            connection.close()
+            print("PostgreSQL connection closed")
     
 if __name__ == '__main__':
    main()
